@@ -13,6 +13,9 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin{
 
+  int page = 1;
+  List<Map> hotGoodsList = [];
+
   @override
   bool get wantKeepAlive => true;
 
@@ -23,7 +26,85 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin{
   };
   @override
   void initState() {
+    getHomeHotData({'page': page}).then((res){
+      var data = json.decode(res.toString());
+      print('....');
+      setState(() {
+        hotGoodsList = (data['data'] as List).cast();
+
+        print(hotGoodsList);
+      });
+    });
     super.initState();
+  }
+
+  Widget _hotTitle = Container(
+    alignment: Alignment.center,
+    color: Colors.transparent,
+    margin: EdgeInsets.fromLTRB(0, 8.0, 0, 8.0),
+    child: Text('火爆专区'),
+  );
+
+  Widget _wrapList() {
+    if(hotGoodsList.length != 0) {
+      List<Widget> listWidget = hotGoodsList.map((item) {
+        return InkWell(
+          onTap: (){},
+          child: Container(
+            width: ScreenUtil().setWidth(372),
+            color: Colors.white,
+            padding: EdgeInsets.all(5.0),
+            margin: EdgeInsets.only(bottom: 3.0),
+            child: Column(
+              children: <Widget>[
+                Image.network(item['image'], width: ScreenUtil().setWidth(370),),
+                Text(
+                  item['name'],
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: Colors.pink,
+                    fontSize: ScreenUtil().setSp(26)
+                  ),
+                ),
+                Row(
+                  children: <Widget>[
+                    Text(
+                      "￥${item['mallPrice']}",
+                    ),
+                    Text(
+                      "￥${item['price']}",
+                      style: TextStyle(
+                        color: Colors.black26,
+                        decoration: TextDecoration.lineThrough
+                      ),
+                    )
+                  ],
+                )
+              ],
+            ),
+          ),
+        );
+      }).toList();
+
+      return Wrap(
+        spacing: 2,
+        children: listWidget,
+      );
+    }else {
+      return Text('');
+    }
+  }
+
+  Widget hotGoods() {
+    return Container(
+      child: Column(
+        children: <Widget>[
+          _hotTitle,
+          _wrapList()
+        ],
+      ),
+    );
   }
 
   @override
@@ -50,7 +131,6 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin{
             appBar: AppBar(title: Text('百姓生活+'),),
             body: SingleChildScrollView(
               scrollDirection: Axis.vertical,
-              
               child: Column(
                 children: <Widget>[
                   SwiperDiy(swiperDateList: swiper),
@@ -64,6 +144,7 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin{
                   FloorContent(floorGoodsList: floor2List),
                   FloorTitle(pictureAddress: floor3Picture),
                   FloorContent(floorGoodsList: floor3List),
+                  hotGoods()
                 ],
               ),
             ),

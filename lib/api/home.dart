@@ -10,4 +10,16 @@ Future<Response> getHomeData(data) async{
     print(e);
     return e;
   }
-} 
+}
+
+Future<Response> getHomeHotData(data) async{
+  try {
+    Dio dio = Request().getDio();
+    print(dio);
+    Response response = await dio.post('wxmini/homePageBelowConten', queryParameters: data);
+    return response;
+  } catch (e) {
+    print(e);
+    return e;
+  }
+}
