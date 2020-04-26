@@ -22,7 +22,7 @@ class Request {
     return Dio(options);
   }
 
-  Request();
+  // Request();
 
   // Request._internal(){
   //   _dio = Dio(options);

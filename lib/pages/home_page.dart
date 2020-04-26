@@ -28,6 +28,7 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin{
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return FutureBuilder(
       future: getHomeData(data),
       builder: (context, snapshot) {
@@ -39,6 +40,12 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin{
           String leaderImage = data['data']['shopInfo']['leaderImage'];
           String leaderPhone = data['data']['shopInfo']['leaderPhone'];
           List<Map> recommandList = (data['data']['recommend'] as List).cast();
+          String floor1Picture = data['data']['floor1Pic']['PICTURE_ADDRESS'];
+          List<Map> floor1List = (data['data']['floor1'] as List).cast();
+          String floor2Picture = data['data']['floor2Pic']['PICTURE_ADDRESS'];
+          List<Map> floor2List = (data['data']['floor2'] as List).cast();
+          String floor3Picture = data['data']['floor3Pic']['PICTURE_ADDRESS'];
+          List<Map> floor3List = (data['data']['floor3'] as List).cast();
           return Scaffold(
             appBar: AppBar(title: Text('百姓生活+'),),
             body: SingleChildScrollView(
@@ -50,7 +57,13 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin{
                   TopNavigator(navigatorList: navigatorList),
                   AdPicture(adPicture: adPicutre),
                   LeaderPhone(leaderImage: leaderImage, leaderPhone: leaderPhone),
-                  Recommand(recommandList: recommandList)
+                  Recommand(recommandList: recommandList),
+                  FloorTitle(pictureAddress: floor1Picture),
+                  FloorContent(floorGoodsList: floor1List),
+                  FloorTitle(pictureAddress: floor2Picture),
+                  FloorContent(floorGoodsList: floor2List),
+                  FloorTitle(pictureAddress: floor3Picture),
+                  FloorContent(floorGoodsList: floor3List),
                 ],
               ),
             ),
@@ -82,7 +95,7 @@ class SwiperDiy extends StatelessWidget {
       width: ScreenUtil().setWidth(750),
       child: Swiper(
         itemBuilder: (BuildContext context, int index) {
-          return Image.network("${swiperDateList[index]['image']}");
+          return Image.network("${swiperDateList[index]['image']}", fit: BoxFit.fill);
         },
         pagination: SwiperPagination(),
         itemCount: 3,
@@ -104,7 +117,7 @@ class TopNavigator extends StatelessWidget {
       },
       child: Column(
         children: <Widget>[
-          Image.network(item['image'], width: ScreenUtil().setWidth(70)),
+          Image.network(item['image'], width: ScreenUtil().setWidth(80)),
           Text(item['mallCategoryName'], style: TextStyle(fontSize: ScreenUtil().setSp(20)))
         ],
       ),
@@ -118,9 +131,10 @@ class TopNavigator extends StatelessWidget {
     }
 
     return Container(
-      height: ScreenUtil().setHeight(130),
+      height: ScreenUtil().setHeight(160),
       padding: EdgeInsets.all(3.0),
       child: GridView.count(
+        physics: NeverScrollableScrollPhysics(),
         crossAxisCount: 4,
         padding: EdgeInsets.all(5.0),
         children: navigatorList.map((item){
@@ -195,7 +209,7 @@ class Recommand extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         border: Border(
-          bottom: BorderSide(width: 1, color: Colors.black12)
+          bottom: BorderSide(width: 0.5, color: Colors.black12)
         )
       ),
       child: Text('商品推荐',
@@ -216,8 +230,8 @@ class Recommand extends StatelessWidget {
           color: Colors.white,
           border: Border(
             left: BorderSide(
-              width: 1.0,
-              color: Colors.white12
+              width: 0.5,
+              color: Colors.black12
             )
           )
         ),
@@ -249,6 +263,73 @@ class Recommand extends StatelessWidget {
             _recommandList() 
           ],
         ),
+      ),
+    );
+  }
+}
+
+class FloorTitle extends StatelessWidget {
+  final String pictureAddress;
+
+  const FloorTitle({Key key, this.pictureAddress}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(8.0),
+      child: Image.network(pictureAddress),
+    ); 
+  }
+}
+
+class FloorContent extends StatelessWidget {
+  final List floorGoodsList;
+
+  const FloorContent({Key key, this.floorGoodsList}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Column(
+        children: <Widget>[
+          _firstRow(),
+          _otherGoods()
+        ],
+      )
+    );
+  }
+
+  Widget _firstRow() {
+    return Row(
+      children: <Widget>[
+        _goodsItem(floorGoodsList[0]),
+        Column(
+          children: <Widget>[
+            _goodsItem(floorGoodsList[1]),
+            _goodsItem(floorGoodsList[2]),
+          ],
+        )
+      ],
+    );
+  }
+
+  Widget _otherGoods() {
+    return Row(
+      children: <Widget>[
+        _goodsItem(floorGoodsList[3]),
+        _goodsItem(floorGoodsList[4]),
+      ],
+    );
+  }
+
+  Widget _goodsItem(Map goods) {
+    return Container(
+      width: ScreenUtil().setWidth(375),
+      child: InkWell(
+        onTap: (){
+          print('点击了商品');
+        },
+        child: Image.network(goods['image']),
       ),
     );
   }
