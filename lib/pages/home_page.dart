@@ -1,9 +1,12 @@
+import 'package:flutter_easyrefresh/material_footer.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:flutter/material.dart';
 import '../api/home.dart';
 import 'dart:convert';
+import 'package:flutter_easyrefresh/easy_refresh.dart';
+
 class HomePage extends StatefulWidget {
   HomePage({Key key}) : super(key: key);
 
@@ -26,15 +29,18 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin{
   };
   @override
   void initState() {
-    getHomeHotData({'page': page}).then((res){
-      var data = json.decode(res.toString());
-      print('....');
-      setState(() {
-        hotGoodsList = (data['data'] as List).cast();
-
-        print(hotGoodsList);
-      });
-    });
+    // getHomeHotData({'page': page}).then((res){
+    //   var data = json.decode(res.toString());
+    //   print('....');
+    //   setState(() {
+    //     List<Map> newHotGoodsList = (data['data'] as List).cast();
+    //     setState(() {
+    //       hotGoodsList.addAll(newHotGoodsList);
+    //       page++;
+    //     });
+    //     // print(hotGoodsList);
+    //   });
+    // });
     super.initState();
   }
 
@@ -129,25 +135,38 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin{
           List<Map> floor3List = (data['data']['floor3'] as List).cast();
           return Scaffold(
             appBar: AppBar(title: Text('百姓生活+'),),
-            body: SingleChildScrollView(
-              scrollDirection: Axis.vertical,
-              child: Column(
-                children: <Widget>[
-                  SwiperDiy(swiperDateList: swiper),
-                  TopNavigator(navigatorList: navigatorList),
-                  AdPicture(adPicture: adPicutre),
-                  LeaderPhone(leaderImage: leaderImage, leaderPhone: leaderPhone),
-                  Recommand(recommandList: recommandList),
-                  FloorTitle(pictureAddress: floor1Picture),
-                  FloorContent(floorGoodsList: floor1List),
-                  FloorTitle(pictureAddress: floor2Picture),
-                  FloorContent(floorGoodsList: floor2List),
-                  FloorTitle(pictureAddress: floor3Picture),
-                  FloorContent(floorGoodsList: floor3List),
-                  hotGoods()
-                ],
+            body: EasyRefresh(
+              onLoad: () async{
+                await getHomeHotData({'page': page}).then((res){
+                  var data = json.decode(res.toString());
+                  List<Map> newHotGoodsList = (data['data'] as List).cast();
+                  print('....');
+                  setState(() {
+                    hotGoodsList.addAll(newHotGoodsList);
+                    page++;
+                  });
+                });
+              },
+              child: SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: Column(
+                  children: <Widget>[
+                    SwiperDiy(swiperDateList: swiper),
+                    TopNavigator(navigatorList: navigatorList),
+                    AdPicture(adPicture: adPicutre),
+                    LeaderPhone(leaderImage: leaderImage, leaderPhone: leaderPhone),
+                    Recommand(recommandList: recommandList),
+                    FloorTitle(pictureAddress: floor1Picture),
+                    FloorContent(floorGoodsList: floor1List),
+                    FloorTitle(pictureAddress: floor2Picture),
+                    FloorContent(floorGoodsList: floor2List),
+                    FloorTitle(pictureAddress: floor3Picture),
+                    FloorContent(floorGoodsList: floor3List),
+                    hotGoods()
+                  ],
+                ),
               ),
-            ),
+            )
           );
         }else {
           return Center(
@@ -179,7 +198,7 @@ class SwiperDiy extends StatelessWidget {
           return Image.network("${swiperDateList[index]['image']}", fit: BoxFit.fill);
         },
         pagination: SwiperPagination(),
-        itemCount: 3,
+        itemCount: swiperDateList.length,
         autoplay: true,
       ),
     );
