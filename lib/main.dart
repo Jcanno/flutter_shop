@@ -1,7 +1,16 @@
 import 'package:flutter/material.dart';
 import 'pages/index_page.dart';
+import 'package:provider/provider.dart';
+import 'provide/child_category.dart';
 
-void main() => runApp(MyApp());
+void main() => runApp(
+  MultiProvider(
+    providers: [
+      ChangeNotifierProvider(create: (context) => ChildCategory())
+    ],
+    child: MyApp(),
+  )
+);
 
 class MyApp extends StatelessWidget {
   const MyApp({Key key}) : super(key: key);

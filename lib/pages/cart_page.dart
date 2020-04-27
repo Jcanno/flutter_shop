@@ -6,8 +6,15 @@ class CartPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: (
-        Center(child: Text('购物车页面'),)
+      appBar: AppBar(
+        title: Text('购物车'),
+      ),
+      body: Center(
+        child: Column(
+          children: <Widget>[
+
+          ],
+        ),
       ),
     );
   }

@@ -1,4 +1,3 @@
-import 'package:flutter_easyrefresh/material_footer.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
@@ -22,25 +21,12 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin{
   @override
   bool get wantKeepAlive => true;
 
-  String homeData = 'hello';
   static const data = {
     'lon': 120.14645385742188,
     'lat': 30.182287216186523
   };
   @override
   void initState() {
-    // getHomeHotData({'page': page}).then((res){
-    //   var data = json.decode(res.toString());
-    //   print('....');
-    //   setState(() {
-    //     List<Map> newHotGoodsList = (data['data'] as List).cast();
-    //     setState(() {
-    //       hotGoodsList.addAll(newHotGoodsList);
-    //       page++;
-    //     });
-    //     // print(hotGoodsList);
-    //   });
-    // });
     super.initState();
   }
 
@@ -189,7 +175,6 @@ class SwiperDiy extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // ScreenUtil.init(context, width: 760, height: 1334);
     return Container(
       height: ScreenUtil().setHeight(333),
       width: ScreenUtil().setWidth(750),
