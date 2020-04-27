@@ -11,3 +11,14 @@ Future<Response> getCategory() async{
     return e;
   }
 }
+
+Future<Response> getMallGoods(params) async{
+  try {
+    Dio dio = Request().getDio();
+    Response response = await dio.post('wxmini/getMallGoods', queryParameters: params);
+    return response;
+  } catch (e) {
+    print(e);
+    return e;
+  }
+}

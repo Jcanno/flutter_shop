@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'pages/index_page.dart';
 import 'package:provider/provider.dart';
 import 'provide/child_category.dart';
+import 'provide/cagegory_goods_list.dart';
 
 void main() => runApp(
   MultiProvider(
     providers: [
-      ChangeNotifierProvider(create: (context) => ChildCategory())
+      ChangeNotifierProvider(create: (context) => ChildCategory()),
+      ChangeNotifierProvider(create: (context) => CategoryGoodsListProvider())
     ],
     child: MyApp(),
   )
