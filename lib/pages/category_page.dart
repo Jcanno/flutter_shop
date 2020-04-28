@@ -7,6 +7,8 @@ import '../provide/child_category.dart';
 import '../provide/cagegory_goods_list.dart';
 import 'package:provider/provider.dart';
 import '../model/categoryGoodsList.dart';
+import 'package:flutter_easyrefresh/easy_refresh.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 class CategoryPage extends StatefulWidget {
   CategoryPage({Key key}) : super(key: key);
 
@@ -39,7 +41,6 @@ class _CategoryPageState extends State<CategoryPage> {
       ),
     );
   }
-  
 }
 
 class LeftCategoryNav extends StatefulWidget {
@@ -54,6 +55,19 @@ class _LeftCategoryNavState extends State<LeftCategoryNav> {
   List list = [];
   int listIndex = 0;
 
+  void _getGoodsList({String categoryId }) async {
+    var params = {
+      'categoryId': categoryId == null ? '' : categoryId,
+      'categorySubId': '',
+      'page': 1
+    };
+    
+    var res = await getMallGoods(params);
+    var data = json.decode(res.toString());
+    CategoryGoodsListModel goodsList = CategoryGoodsListModel.fromJson(data);
+    Provider.of<CategoryGoodsListProvider>(context, listen: false).setGoodsList(goodsList.data);
+  }
+
   Widget _leftInkWell(index) {
     bool isClick = false;
     isClick = index == listIndex ? true : false;
@@ -64,7 +78,7 @@ class _LeftCategoryNavState extends State<LeftCategoryNav> {
         });
         var childList = list[index].bxMallSubDto;
         var categoryId = list[index].mallCategoryId;
-        Provider.of<ChildCategory>(context, listen: false).setChildCategory(childList);
+        Provider.of<ChildCategory>(context, listen: false).setChildCategory(childList, categoryId);
         _getGoodsList(categoryId: categoryId);
       },
       child: Container(
@@ -87,7 +101,7 @@ class _LeftCategoryNavState extends State<LeftCategoryNav> {
   @override
   void initState() {
     _getCategory();
-    // _getGoodsList();
+    _getGoodsList();
     super.initState();
   }
 
@@ -97,21 +111,9 @@ class _LeftCategoryNavState extends State<LeftCategoryNav> {
     CategoryListModel category = CategoryListModel.fromJson(data);
     setState(() {
       list = category.data;
-      Provider.of<ChildCategory>(context, listen: false).setChildCategory(list[0].bxMallSubDto);
+      Provider.of<ChildCategory>(context, listen: false).setChildCategory(list[0].bxMallSubDto, list[0].mallCategoryId);
+      // _getGoodsList();
     });
-  }
-
-  void _getGoodsList({String categoryId}) async {
-    var params = {
-      'categoryId': categoryId == null ? '4' : categoryId,
-      'CategorySubId': '',
-      'page': 1
-    };
-    
-    var res = await getMallGoods(params);
-    var data = json.decode(res.toString());
-    CategoryGoodsListModel goodsList = CategoryGoodsListModel.fromJson(data);
-    Provider.of<CategoryGoodsListProvider>(context, listen: false).setGoodsList(goodsList.data);
   }
 
   @override
@@ -141,7 +143,10 @@ class RightCategoryNav extends StatefulWidget {
 }
 
 class _RightCategoryNavState extends State<RightCategoryNav> {
-  // List list = ['名酒', '宝丰', '北京二锅头', '舍得', '茅台', '五粮液', '五井贡酒'];
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -163,28 +168,51 @@ class _RightCategoryNavState extends State<RightCategoryNav> {
             itemCount: childCategory.childCategoryList.length,
             scrollDirection: Axis.horizontal,
             itemBuilder: (context, index){
-              return _rightInkWell(childCategory.childCategoryList[index]);
+              return _rightInkWell(index, childCategory.childCategoryList[index]);
             },
           );
         }
       )
-      
     );
   }
 
-  Widget _rightInkWell(item) {
+  Widget _rightInkWell(index, item) {
+    bool isClick = false;
+    int childIndex = Provider.of<ChildCategory>(context, listen: false).childIndex;
+    isClick = index == childIndex ? true : false;
     return InkWell(
-      onTap: (){},
+      onTap: (){
+        Provider.of<ChildCategory>(context, listen: false).setChildIndex(index, item.mallSubId);
+        _getGoodsList(item.mallSubId);
+      },
       child: Container(
         padding: EdgeInsets.fromLTRB(5.0, 10.0, 5.0, 10.0),
         child: Text(
           item.mallSubName,
           style: TextStyle(
-            fontSize: ScreenUtil().setSp(25)
+            fontSize: ScreenUtil().setSp(25), 
+            color: isClick ? Colors.pink : Colors.black
           ),
         ),
       ),
     );
+  }
+
+  void _getGoodsList(String categorySubId) async {
+    var params = {
+      'categoryId': Provider.of<ChildCategory>(context, listen: false).categoryId,
+      'categorySubId': categorySubId,
+      'page': 1
+    };
+    
+    var res = await getMallGoods(params);
+    var data = json.decode(res.toString());
+    CategoryGoodsListModel goodsList = CategoryGoodsListModel.fromJson(data);
+    if(goodsList.data == null) {
+      Provider.of<CategoryGoodsListProvider>(context, listen: false).setGoodsList([]);
+    }else {
+      Provider.of<CategoryGoodsListProvider>(context, listen: false).setGoodsList(goodsList.data);
+    }
   }
 }
 
@@ -197,24 +225,82 @@ class CategoryGoodsList extends StatefulWidget {
 
 class _CategoryGoodsListState extends State<CategoryGoodsList> {
 
+  var scrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
   }
 
+  void _getGoodsList() async {
+    Provider.of<ChildCategory>(context, listen: false).addPage();
+
+    var params = {
+      'categoryId': Provider.of<ChildCategory>(context, listen: false).categoryId,
+      'categorySubId': Provider.of<ChildCategory>(context, listen: false).categorySubId,
+      'page': Provider.of<ChildCategory>(context, listen: false).page
+    };
+    
+    var res = await getMallGoods(params);
+    var data = json.decode(res.toString());
+    CategoryGoodsListModel goodsList = CategoryGoodsListModel.fromJson(data);
+    if(goodsList.data == null) {
+      Fluttertoast.showToast(
+        msg: '已经到底了',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        backgroundColor: Colors.pink,
+        textColor: Colors.white,
+        fontSize: 16.0
+      );
+      Provider.of<ChildCategory>(context, listen: false).changeNoMore('没有更多了');
+    }else {
+      Provider.of<CategoryGoodsListProvider>(context, listen: false).setMoreGoodsList(goodsList.data);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: ScreenUtil().setHeight(1000),
       width: ScreenUtil().setWidth(570),
       child: Consumer<CategoryGoodsListProvider>(
         builder: (context, categoryGoodsList, child) {
-          return ListView.builder(
-            itemCount: categoryGoodsList.goodsList.length,
-            itemBuilder: (context, index) {
-              return _goodsItem(categoryGoodsList.goodsList, index);
+          try {
+            if(Provider.of<ChildCategory>(context, listen: false).page == 1) {
+              scrollController.jumpTo(0.0);
             }
-          );
+          } catch (e) {
+          }
+          if(categoryGoodsList.goodsList.length > 0) {
+            return EasyRefresh(
+              footer: ClassicalFooter(
+                bgColor: Colors.white,
+                textColor: Colors.pink,
+                noMoreText: Provider.of<ChildCategory>(context, listen: false).noMoreText,
+                loadReadyText: '上拉加载',
+                showInfo: true,
+                loadingText: '加载中...',
+                infoText: '',
+                loadedText: '加载完成'
+              ),
+              child: ListView.builder(
+                controller: scrollController,
+                itemCount: categoryGoodsList.goodsList.length,
+                itemBuilder: (context, index) {
+                  return _goodsItem(categoryGoodsList.goodsList, index);
+                }
+              ),
+              onLoad: () async{
+                print('上拉加载');
+                _getGoodsList();
+              } ,
+            );
+            
+          }else {
+            return Center(
+              child: Text('暂无数据'),
+            );
+          }
         }
       )
     );
@@ -259,7 +345,6 @@ class _CategoryGoodsListState extends State<CategoryGoodsList> {
               color: Colors.black26,
               decoration: TextDecoration.lineThrough
             ),
-            
           )
         ],
       ),

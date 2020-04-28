@@ -122,6 +122,16 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin{
           return Scaffold(
             appBar: AppBar(title: Text('百姓生活+'),),
             body: EasyRefresh(
+              footer: ClassicalFooter(
+                bgColor: Colors.white,
+                textColor: Colors.pink,
+                noMoreText: '',
+                loadReadyText: '上拉加载',
+                showInfo: true,
+                loadingText: '加载中...',
+                infoText: '',
+                loadedText: '加载完成'
+              ),
               onLoad: () async{
                 await getHomeHotData({'page': page}).then((res){
                   var data = json.decode(res.toString());
