@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import '../model/cartInfo.dart';
+import 'package:decimal/decimal.dart';
 
 class CartProvider with ChangeNotifier {
   String cartString = '[]';
@@ -45,7 +46,6 @@ class CartProvider with ChangeNotifier {
     print(cartString);
     prefs.setString('cartInfo', cartString);
     await getCartInfo();
-    // notifyListeners();
   }
 
   remove() async {
@@ -70,15 +70,46 @@ class CartProvider with ChangeNotifier {
       List<Map> tempList = (json.decode(cartString.toString()) as List).cast();
       tempList.forEach((item) {
         if(item['isCheck']) {
-          allPrice += (item['count'] * item['price']);
+          // allPrice += (item['count'] * item['price']);
+          allPrice = getAllPrice(allPrice, item['count'], item['price']);
           allGoodsCount += item['count'];
         }else {
           isAllCheck = false;
         }
+        
         cartList.add(CartInfoModel.fromJson(item));
       });
     }
     notifyListeners();
+  }
+
+  double getAllPrice(double allPrice, int count, double price) {
+    var addNum = Decimal.parse(count.toString()) * Decimal.parse(price.toString());
+    return (Decimal.parse(allPrice.toString()) + addNum).toDouble();
+  }
+
+  addOrReduceAction(var cartItem, String todo) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    cartString = prefs.getString('cartInfo');
+    List<Map> tempList = (json.decode(cartString) as List).cast();
+    int tempIndex = 0;
+    int changeIndex = 0;
+    tempList.forEach((item) {
+      if(item['goodsId'] == cartItem.goodsId) {
+        changeIndex = tempIndex;
+      }
+      tempIndex++;
+    });
+    if(todo == 'add') {
+      cartItem.count++;
+    }else if(cartItem.count > 1) {
+      cartItem.count--;
+    }
+
+    tempList[changeIndex] = cartItem.toJson();
+    cartString = json.encode(tempList).toString();
+    prefs.setString('cartInfo', cartString);
+    await getCartInfo();
   }
 
   deleteGoods(String goodsId) async{

@@ -33,6 +33,7 @@ dependencies:
   fluro: ^1.6.3
   flutter_html: ^0.11.1
   shared_preferences: ^0.5.7
+  decimal: ^0.3.0
 
 dev_dependencies:
   flutter_test:

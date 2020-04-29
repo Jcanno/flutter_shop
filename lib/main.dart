@@ -5,6 +5,7 @@ import 'provide/child_category.dart';
 import 'provide/cagegory_goods_list.dart';
 import 'provide/details_info.dart';
 import 'provide/cart.dart';
+import 'provide/current_index.dart';
 import 'package:fluro/fluro.dart';
 import 'router/routes.dart';
 import 'application.dart';
@@ -20,7 +21,8 @@ void main(){
         ChangeNotifierProvider(create: (context) => ChildCategory()),
         ChangeNotifierProvider(create: (context) => CategoryGoodsListProvider()),
         ChangeNotifierProvider(create: (context) => DetailsInfoProvider()),
-        ChangeNotifierProvider(create: (context) => CartProvider())
+        ChangeNotifierProvider(create: (context) => CartProvider()),
+        ChangeNotifierProvider(create: (context) => CurrentIndexProvider()),
       ],
       child: MyApp(),
     )

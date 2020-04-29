@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/screenutil.dart';
 import 'package:provider/provider.dart';
 import '../../provide/cart.dart';
 import '../../provide/details_info.dart';
+import '../../provide/current_index.dart';
 
 class DetailsBottom extends StatelessWidget {
   const DetailsBottom({Key key}) : super(key: key);
@@ -22,17 +23,50 @@ class DetailsBottom extends StatelessWidget {
       height: ScreenUtil().setHeight(80),
       child: Row(
         children: <Widget>[
-          InkWell(
-            onTap: (){},
-            child: Container(
-              width: ScreenUtil().setWidth(110),
-              alignment: Alignment.center,
-              child: Icon(
-                Icons.shopping_cart,
-                size: 35,
-                color: Colors.red,
+          Stack(
+            children: <Widget>[
+              InkWell(
+                onTap: (){
+                  Provider.of<CurrentIndexProvider>(context, listen: false).changeIndex(2);
+                  Navigator.pop(context);
+                },
+                child: Container(
+                  width: ScreenUtil().setWidth(110),
+                  alignment: Alignment.center,
+                  child: Icon(
+                    Icons.shopping_cart,
+                    size: 35,
+                    color: Colors.red,
+                  ),
+                ),
               ),
-            ),
+              Consumer<CartProvider>(
+                builder: (context, cartInfo, child) {
+                  return Positioned(
+                    top: 0,
+                    right: 3,
+                    child: Container(
+                      padding: EdgeInsets.fromLTRB(6.0, 3.0, 6.0, 3.0),
+                      decoration: BoxDecoration(
+                        color: Colors.pink,
+                        border: Border.all(
+                          width: 2,
+                          color: Colors.white
+                        ),
+                        borderRadius: BorderRadius.circular(12.0)
+                      ),
+                      child: Text(
+                        '${cartInfo.allGoodsCount}',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: ScreenUtil().setSp(15)
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              )
+            ],
           ),
           InkWell(
             onTap: () async{
