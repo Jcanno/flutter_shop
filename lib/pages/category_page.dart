@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import '../model/categoryGoodsList.dart';
 import 'package:flutter_easyrefresh/easy_refresh.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import '../application.dart';
 class CategoryPage extends StatefulWidget {
   CategoryPage({Key key}) : super(key: key);
 
@@ -365,17 +366,22 @@ class _CategoryGoodsListState extends State<CategoryGoodsList> {
             )
           )
         ),
-        child: Row(
-          children: <Widget>[
-            _goodsImage(list, index),
-            Column(
-              children: <Widget>[
-                _goodsName(list, index),
-                _goodsPrice(list, index) 
-              ],
-            )
-          ],
-        ),
+        child: InkWell(
+          onTap: (){
+            Application.router.navigateTo(context, '/detail?id=${list[index].goodsId}');
+          },
+          child: Row(
+            children: <Widget>[
+              _goodsImage(list, index),
+              Column(
+                children: <Widget>[
+                  _goodsName(list, index),
+                  _goodsPrice(list, index) 
+                ],
+              )
+            ],
+          ),
+        )
       ),
     );
   }
