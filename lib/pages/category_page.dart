@@ -285,6 +285,7 @@ class _CategoryGoodsListState extends State<CategoryGoodsList> {
                 loadedText: '加载完成'
               ),
               child: ListView.builder(
+                itemExtent: 120.0,
                 controller: scrollController,
                 itemCount: categoryGoodsList.goodsList.length,
                 itemBuilder: (context, index) {

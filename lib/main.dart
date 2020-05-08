@@ -41,6 +41,9 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           primaryColor: Colors.pink,
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          
         ),
         home: IndexPage()
       ),
